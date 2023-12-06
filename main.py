@@ -158,8 +158,11 @@ class AddressBook(UserDict):
                     yield result
                     counter = 0
                     result = ''
+            if counter > 0:
+                yield result
 
     # серіалізація даних адресної книги
+
     def to_pickle(self, file_name="backup_address_book"):
         with open(f'{file_name}.pkl', 'wb') as file:
             pickle.dump(self.data, file)
@@ -210,13 +213,26 @@ class MyCmd(cmd.Cmd):
             print(contact)
 
     def do_add(self, *args):
-        "add name, byt not record in address book"
+        "add name and record in address book"
         name = input("Input name>>> ")
         temp_obj = Record(name)
-        phone = input("Input phone>>> ")
-        temp_obj.add_phone(phone)
+        while True:
+            phone = input("Input phone>>> ")
+            temp_obj.add_phone(phone)
+            more_phones = input("Do you want to add more phones? (yes/no): ")
+            if more_phones.lower() != 'yes':
+                break
         self.book.add_record(temp_obj)
         temp_obj = None
+
+    def do_delete(self, name):
+        "delete contact"
+        self.book.delete(name)
+
+    def do_show_parts(self, quantity):
+        "show contacts by iterator"
+        for contact in self.book.iterator(int(quantity)):
+            print(contact)
 
 
 if __name__ == "__main__":
